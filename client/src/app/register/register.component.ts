@@ -1,4 +1,4 @@
-import { Component, inject, Input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AccountService } from '../_services/account.service';
 
@@ -11,7 +11,6 @@ import { AccountService } from '../_services/account.service';
 })
 export class RegisterComponent {
   private accountService = inject(AccountService);
-  @Input() usersFromHomeComponent: any;
   cancelRegister = output<boolean>();
   model: any = {}
 
@@ -25,7 +24,7 @@ export class RegisterComponent {
     })
   }
 
-  cancel(){
+  cancel() {
     this.cancelRegister.emit(false);
   }
 }

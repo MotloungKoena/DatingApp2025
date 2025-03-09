@@ -7,11 +7,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
+//Student number: 2019476593
+//Name and Surname : Koena Motloung
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationServices(builder.Configuration);
 
     builder.Services.AddIdentityServices(builder.Configuration);
+
+//builder.Services.AddCors();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
