@@ -8,6 +8,8 @@ import { authGuard } from './_guards/auth.guard';
 import { TestErrorsComponent } from './errors/test-errors/test-errors.component';
 import { NotFoundComponent } from './errors/not-found/not-found.component';
 import { ServerErrorComponent } from './errors/server-error/server-error.component';
+import { ContactUsComponent } from './contact-us/contact-us.component';
+
 
 export const routes: Routes = [
     { path: '', component: HomeComponent },
@@ -25,6 +27,7 @@ export const routes: Routes = [
     {path: 'errors', component: TestErrorsComponent},
     {path: 'not-found', component: NotFoundComponent},
     {path: 'server-error', component: ServerErrorComponent},
+    { path: 'contact-us', component: ContactUsComponent },
     { path: '**', component: HomeComponent, pathMatch: 'full' },
 ];
 

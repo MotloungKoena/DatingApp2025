@@ -20,6 +20,14 @@
             <li class="nav-item">
                 <a routerLink="/errors" routerLinkActive="active" class="nav-link">Errors</a>
             </li>
+
+            @if(!accountService.currentUser()) 
+            {
+                <li class="nav-item">
+                    <a routerLink="/contact-us" routerLinkActive="active" class="nav-link">Contact Us</a>
+                </li>
+            }
+
         </ul>
 
 
