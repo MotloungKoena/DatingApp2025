@@ -47,12 +47,19 @@ namespace API.Data
             return await context.Users.FindAsync(id);
         }
 
-        public async Task<AppUser?> GetUserByUsernameAsync(string username)
+        /*public async Task<AppUser?> GetUserByUsernameAsync(string username)
         {
             return await context.Users
             .Include(x => x.Photos)
             .SingleOrDefaultAsync(x => x.UserName == username);
-        }
+        }*/
+        public async Task<AppUser?> GetUserByUsernameAsync(string username)
+{
+    return await context.Users
+        .Include(x => x.Photos)
+        .SingleOrDefaultAsync(x => x.UserName.ToLower() == username.ToLower());
+}
+
 
         public async Task<IEnumerable<AppUser>> GetUsersAsync()
         {
