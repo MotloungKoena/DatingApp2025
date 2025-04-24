@@ -13,7 +13,7 @@ namespace API.Extensions
 
         public static string GetUsername(this ClaimsPrincipal user)
 {
-    var username = user.FindFirstValue(ClaimTypes.Name)
+    var username = user.FindFirstValue(ClaimTypes.Name) //ClaimTypes.Name fetches the username
         ?? throw new Exception("Cannot get username from token");
     return username;
 }
@@ -21,7 +21,7 @@ namespace API.Extensions
 
          public static int GetUserId(this ClaimsPrincipal user)
         {
-            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier) //ClaimTypes.NameIdentifier fetches the userID
                 ?? throw new Exception("Cannot get userId from token"));
             return userId;
         }
