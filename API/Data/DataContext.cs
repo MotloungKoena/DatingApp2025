@@ -3,34 +3,37 @@ using API.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using API.Helpers;
 
 namespace API.Data;
 
 public class DataContext(DbContextOptions options) : IdentityDbContext<AppUser, AppRole, int,
-    IdentityUserClaim<int>, AppUserRole, IdentityUserLogin<int>, IdentityRoleClaim<int>, 
+    IdentityUserClaim<int>, AppUserRole, IdentityUserLogin<int>, IdentityRoleClaim<int>,
     IdentityUserToken<int>>(options)
 {
 
-    public DbSet<UserLike> Likes {get;set;}
+    public DbSet<UserLike> Likes { get; set; }
     public DbSet<Message> Messages { get; set; }
-    public DbSet<Group> Groups{get;set;}
-    public DbSet<Connection> Connections{get;set;}
+    public DbSet<Group> Groups { get; set; }
+    public DbSet<Connection> Connections { get; set; }
+    public DbSet<Photo> Photos { get; set; }
+    public DbSet<Visit> Visits { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
-          builder.Entity<AppUser>()
-                .HasMany(ur => ur.UserRoles)
-                .WithOne(u => u.User)
-                .HasForeignKey(ur => ur.UserId)
-                .IsRequired();
+        builder.Entity<AppUser>()
+              .HasMany(ur => ur.UserRoles)
+              .WithOne(u => u.User)
+              .HasForeignKey(ur => ur.UserId)
+              .IsRequired();
 
-            builder.Entity<AppRole>()
-                .HasMany(ur => ur.UserRoles)
-                .WithOne(u => u.Role)
-                .HasForeignKey(ur => ur.RoleId)
-                .IsRequired();
+        builder.Entity<AppRole>()
+            .HasMany(ur => ur.UserRoles)
+            .WithOne(u => u.Role)
+            .HasForeignKey(ur => ur.RoleId)
+            .IsRequired();
 
         // Specify primary key
         builder.Entity<UserLike>()
@@ -51,15 +54,35 @@ public class DataContext(DbContextOptions options) : IdentityDbContext<AppUser, 
             .OnDelete(DeleteBehavior.Cascade);
         // Note: For SQL Server, set the DeleteBehavior to
         // DeleteBehavior.NoAction or you will get an error during migration.
-    
-         builder.Entity<Message>()
-                .HasOne(x => x.Recipient)
-                .WithMany(x => x.MessagesReceived)
-                .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Message>()
+               .HasOne(x => x.Recipient)
+               .WithMany(x => x.MessagesReceived)
+               .OnDelete(DeleteBehavior.Restrict);
 
         builder.Entity<Message>()
             .HasOne(x => x.Sender)
             .WithMany(x => x.MessagesSent)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Photo>()
+    .HasQueryFilter(p => p.IsApproved);
+
+    builder.Entity<Visit>()
+    .HasKey(v => new { v.SourceUserId, v.TargetUserId });
+
+builder.Entity<Visit>()
+    .HasOne(v => v.SourceUser)
+    .WithMany()
+    .HasForeignKey(v => v.SourceUserId)
+    .OnDelete(DeleteBehavior.NoAction);
+
+builder.Entity<Visit>()
+    .HasOne(v => v.TargetUser)
+    .WithMany()
+    .HasForeignKey(v => v.TargetUserId)
+    .OnDelete(DeleteBehavior.NoAction);
+
+        //builder.ApplyUtcDateTimeConverter();
     }
 }

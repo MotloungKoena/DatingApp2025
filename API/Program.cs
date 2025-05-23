@@ -13,6 +13,7 @@ using API.SignalR;
 
 //Student number: 2019476593
 //Name and Surname : Koena Motloung
+//Initial: KE
 
 var builder = WebApplication.CreateBuilder(args);
 
