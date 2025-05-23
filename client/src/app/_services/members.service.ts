@@ -47,13 +47,22 @@ export class MembersService {
   }
 
 
-  getMember(username: string) {
+  /*getMember(username: string) {
     const member: Member =  [...(this.memberCache.values())]
     .reduce((arr, elem) => arr.concat(elem.body), [])
     .find((m: Member) => member.username === username);
     if(member) return of(member);
     return this.http.get<Member>(this.baseUrl + 'users/' + username);
-  }
+  }*/
+ getMember(username: string) {
+  const member = [...this.memberCache.values()]
+    .reduce((arr, elem) => arr.concat(elem.body), [] as Member[])
+    .find((m: Member) => m.username === username);
+
+  if (member) return of(member);
+
+  return this.http.get<Member>(this.baseUrl + 'users/' + username);
+}
 
   updateMember(member: Member) {
     return this.http.put(this.baseUrl + 'users', member).pipe(

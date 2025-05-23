@@ -11,11 +11,13 @@ using API.Entities;
  
 using AutoMapper;
 using API.Data;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace API.SignalR
 {
-    public class MessageHub(UnitOfWork unitOfWork, IMapper mapper, IHubContext<PresenceHub> presenceHub) : Hub
+//[Authorize]
+    public class MessageHub(IUnitOfWork unitOfWork, IMapper mapper, IHubContext<PresenceHub> presenceHub) : Hub
     {
         public override async Task OnConnectedAsync()
         {
@@ -32,10 +34,31 @@ namespace API.SignalR
             await Clients.Group(groupName).SendAsync("UpdatedGroup", group);
             
 
-            var messages = await unitOfWork.MessageRepository
+            /*var messages = await unitOfWork.MessageRepository
                 .GetMessageThread(Context.User.GetUsername(), otherUser!);
 
-            await Clients.Caller.SendAsync("ReceiveMessageThread", messages);
+            await Clients.Caller.SendAsync("ReceiveMessageThread", messages);*/
+            var currentUsername = Context.User.GetUsername();
+var messages = await unitOfWork.MessageRepository
+    .GetMessageThread(currentUsername, otherUser!);
+
+// ✅ Mark unread messages as read
+var unreadMessages = messages
+    .Where(m => m.DateRead == null && m.RecipientUsername == currentUsername)
+    .ToList();
+
+if (unreadMessages.Any())
+{
+    foreach (var message in unreadMessages)
+    {
+        message.DateRead = DateTime.UtcNow;
+    }
+
+    await unitOfWork.Complete(); // ← This saves the updates to DB
+}
+
+await Clients.Caller.SendAsync("ReceiveMessageThread", messages);
+
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
