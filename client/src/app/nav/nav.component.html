@@ -19,16 +19,27 @@
             <li *appHasRole="['Admin', 'Moderator']" class="nav-item">
                 <a routerLink="/admin" routerLinkActive="active" class="nav-link">Admin</a>
             </li>
+            <!--<li *appHasRole="['VIP']" class="nav-item">
+                <a routerLink="/visitors" routerLinkActive="active" class="nav-link">Visitors</a>
+            </li>
+
+            <li *appHasRole="['VIP']" class="nav-item">
+                <a routerLink="/VIP" routerLinkActive="active" class="nav-link">Visitors/VIP</a>
+            </li>-->
+            <li *appHasRole="['VIP']" class="nav-item">
+                <a routerLink="/visits" routerLinkActive="active" class="nav-link">Visitors</a>
+            </li>
             }
             <li class="nav-item">
                 <a routerLink="/errors" routerLinkActive="active" class="nav-link">Errors</a>
             </li>
 
-            @if(!accountService.currentUser()) 
+
+            @if(!accountService.currentUser())
             {
-                <li class="nav-item">
-                    <a routerLink="/contact-us" routerLinkActive="active" class="nav-link">Contact Us</a>
-                </li>
+            <li class="nav-item">
+                <a routerLink="/contact-us" routerLinkActive="active" class="nav-link">Contact Us</a>
+            </li>
             }
 
         </ul>
@@ -37,9 +48,9 @@
         @if(accountService.currentUser())
         {
         <div dropdown class="dropdown">
-            <img class="me-2"
-             src="{{accountService.currentUser()?.photoUrl || 'user.png'}}" alt="user main image">
-            <a dropdownToggle class="dropdown-toggle text-light text-decoration-none">Welcome {{accountService.currentUser()?.knownAs}}</a>
+            <img class="me-2" src="{{accountService.currentUser()?.photoUrl || 'user.png'}}" alt="user main image">
+            <a dropdownToggle class="dropdown-toggle text-light text-decoration-none">Welcome
+                {{accountService.currentUser()?.knownAs}}</a>
             <div *dropdownMenu class="dropdown-menu">
                 <a routerLink="/member/edit" class="dropdown-item">Edit profile</a>
                 <div class="dropdown-divider"></div>

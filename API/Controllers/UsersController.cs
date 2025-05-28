@@ -135,4 +135,131 @@ public class UsersController(IUnitOfWork unitOfWork, IMapper mapper, IPhotoServi
         if (await unitOfWork.Complete()) return Ok();
         return BadRequest("Problem deleting photo");
     }
+
+
+    [Authorize(Policy = "RequireVipRole")]
+    [HttpPost("visited/{username}")]
+    public async Task<ActionResult> TrackVisit(string username)
+    {
+        var sourceUsername = User.GetUsername();
+
+        if (sourceUsername == username.ToLower()) return BadRequest("You cannot visit your own profile");
+
+        var sourceUser = await unitOfWork.UserRepository.GetUserByUsernameAsync(sourceUsername);
+        var targetUser = await unitOfWork.UserRepository.GetUserByUsernameAsync(username);
+
+        if (targetUser == null || sourceUser == null) return NotFound("User not found");
+
+        var visit = await unitOfWork.VisitRepository.GetVisitAsync(sourceUser.Id, targetUser.Id);
+
+        if (visit == null)
+        {
+            visit = new Visit
+            {
+                SourceUserId = sourceUser.Id,
+                TargetUserId = targetUser.Id,
+                LastVisited = DateTime.UtcNow
+            };
+
+            unitOfWork.VisitRepository.AddVisit(visit);
+        }
+        else
+        {
+            visit.LastVisited = DateTime.UtcNow;
+        }
+
+        if (await unitOfWork.Complete()) return Ok();
+
+        return BadRequest("Problem tracking profile visit");
+    }
+
+    [Authorize]
+    [HttpGet("visited")]
+    public async Task<ActionResult<IEnumerable<VisitDto>>> GetVisits()
+    {
+        var userId = User.GetUserId();
+        var visits = await unitOfWork.VisitRepository.GetVisitsByUserIdAsync(userId);
+
+        return Ok(visits.Select(v => new VisitDto
+        {
+            Username = v.TargetUser!.UserName,
+            KnownAs = v.TargetUser.KnownAs,
+            VisitedOn = v.LastVisited
+        }));
+    }
+    [Authorize(Roles = "VIP")]
+    [HttpGet("visits")]
+    public async Task<ActionResult<PagedList<VisitDto>>> GetUserVisits([FromQuery] VisitsParams visitsParams)
+    {
+        var userId = User.GetUserId();
+        var visits = await unitOfWork.UserRepository.GetUserVisits(visitsParams, userId);
+
+        //Response.AddPaginationHeader(visits.CurrentPage, visitsParams.PageSize, visits.TotalCount, visits.TotalPages);
+        Response.AddPaginationHeader(visits);
+        return Ok(visits);
+    }
+
+
+    [Authorize]
+    [HttpPost("visit/{username}")]
+    public async Task<ActionResult> AddVisit(string username)
+    {
+        var sourceUser = await unitOfWork.UserRepository.GetUserByUsernameAsync(User.GetUsername());
+        var targetUser = await unitOfWork.UserRepository.GetUserByUsernameAsync(username);
+
+        if (targetUser == null || sourceUser == null) return NotFound();
+
+        var visit = await unitOfWork.UserRepository.GetVisit(sourceUser.Id, targetUser.Id);
+
+        if (visit == null)
+        {
+            visit = new Visit
+            {
+                SourceUserId = sourceUser.Id,
+                TargetUserId = targetUser.Id,
+                LastVisited = DateTime.UtcNow
+            };
+            unitOfWork.UserRepository.AddVisit(visit); 
+        }
+        else
+        {
+            visit.LastVisited = DateTime.UtcNow;
+        }
+
+        if (await unitOfWork.Complete()) return Ok();
+
+        return BadRequest("Problem tracking visit");
+    }
+
+
+
+    /*[Authorize(Roles = "Member,VIP")]
+    [HttpPost("visit/{username}")]
+    public async Task<ActionResult> AddVisit(string username)
+    {
+        var sourceUserId = User.GetUserId();
+        var targetUser = await _userRepository.GetUserByUsernameAsync(username);
+
+        if (targetUser == null) return NotFound();
+
+        var visit = await _userRepository.GetVisit(sourceUserId, targetUser.Id);
+
+        if (visit == null)
+        {
+            visit = new Visit
+            {
+                SourceUserId = sourceUserId,
+                TargetUserId = targetUser.Id,
+                LastVisited = DateTime.UtcNow
+            };
+            context.Visits.Add(visit);
+        }
+        else
+        {
+            visit.LastVisited = DateTime.UtcNow;
+        }
+
+        await context.SaveChangesAsync();
+        return Ok();
+    }*/
 }

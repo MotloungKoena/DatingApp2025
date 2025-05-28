@@ -25,7 +25,8 @@ namespace API.Data
             {
                 new() {Name = "Member"},
                 new() {Name = "Admin"},
-                new() {Name = "Moderator"}
+                new() {Name = "Moderator"},
+                new() {Name = "VIP"}
             };
 
             foreach(var role in roles)

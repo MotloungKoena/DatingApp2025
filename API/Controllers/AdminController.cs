@@ -9,6 +9,18 @@ namespace API.Controllers
 {
     public class AdminController(UserManager<AppUser> userManager, IUnitOfWork unitOfWork, IPhotoService photoService) : BaseApiController
     {
+        /*[Authorize(Policy = "RequireAdminRole")]
+        [HttpGet("roles")]
+        public async Task<ActionResult<IEnumerable<string>>> GetAllRoles(
+            [FromServices] RoleManager<AppRole> roleManager)
+        {
+            var roles = await roleManager.Roles
+                .Select(r => r.Name)
+                .ToListAsync();
+
+            return Ok(roles); 
+        }*/ //may need to bring this back
+
         [Authorize(Policy = "RequireAdminRole")]
         [HttpGet("users-with-roles")]
         public async Task<ActionResult> GetUsersWithRoles()

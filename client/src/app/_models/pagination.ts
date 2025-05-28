@@ -7,5 +7,6 @@ export interface Pagination {
 
 export class PaginatedResult<T> {
     items?: T; // Member[]
+    result!: T;
     pagination?: Pagination;
 }

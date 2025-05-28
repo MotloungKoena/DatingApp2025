@@ -4,11 +4,12 @@ import { RouterLink, RouterModule } from '@angular/router';
 import { LikesService } from '../../_services/likes.service';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { PresenceService } from '../../_services/presence.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-member-card',
   standalone: true,
-  imports: [RouterLink, RouterModule],
+  imports: [RouterLink, RouterModule, CommonModule],
   templateUrl: './member-card.component.html',
   styleUrl: './member-card.component.css',
 })

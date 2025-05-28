@@ -49,7 +49,10 @@ isCurrentUser)
         {
             return await context.Users.FindAsync(id);
         }
-
+        public void AddVisit(Visit visit)
+        {
+            context.Visits.Add(visit);
+        }
         public async Task<AppUser?> GetUserByUsernameAsync(string username)
         {
             return await context.Users
@@ -84,6 +87,93 @@ isCurrentUser)
             .IgnoreQueryFilters()
             .Where(p => p.Photos.Any(p => p.Id == photoId))
             .FirstOrDefaultAsync();
+        }
+
+        public async Task<Visit?> GetVisit(int sourceUserId, int targetUserId)
+        {
+            return await context.Visits.FindAsync(sourceUserId, targetUserId);
+        }
+
+        /*public async Task<PagedList<VisitDto>> GetUserVisits(VisitsParams visitsParams, int userId)
+        {
+            var visits = context.Visits.AsQueryable();
+
+            if (visitsParams.Predicate == "visited")
+                visits = visits.Where(x => x.SourceUserId == userId);
+            else
+                visits = visits.Where(x => x.TargetUserId == userId);
+
+            if (visitsParams.Filter == "month")
+            {
+                var monthAgo = DateTime.UtcNow.AddMonths(-1);
+                visits = visits.Where(x => x.LastVisited >= monthAgo);
+            }
+
+            var visitsList = await visits
+    .Include(x => x.SourceUser).ThenInclude(p => p!.Photos)
+    .Include(x => x.TargetUser).ThenInclude(p => p!.Photos)
+    .ToListAsync();
+
+            var visitDtos = visitsList.Select(x => new VisitDto
+            {
+                Username = visitsParams.Predicate == "visited" ? x.TargetUser!.UserName : x.SourceUser!.UserName,
+                KnownAs = visitsParams.Predicate == "visited" ? x.TargetUser!.KnownAs : x.SourceUser!.KnownAs,
+                PhotoUrl = visitsParams.Predicate == "visited"
+        ? x.TargetUser!.Photos.FirstOrDefault(p => p.IsMain)?.Url ?? ""
+        : x.SourceUser!.Photos.FirstOrDefault(p => p.IsMain)?.Url ?? "",
+                VisitedOn = x.LastVisited
+            });
+
+            return await PagedList<VisitDto>.CreateAsync(visitDtos.AsQueryable(), visitsParams.PageNumber, visitsParams.PageSize);
+        }*/
+        public async Task<PagedList<VisitDto>> GetUserVisits(VisitsParams visitsParams, int userId)
+        {
+            var visits = context.Visits.AsQueryable();
+
+            if (visitsParams.Predicate == "visited")
+                visits = visits.Where(x => x.SourceUserId == userId);
+            else
+                visits = visits.Where(x => x.TargetUserId == userId);
+
+            if (visitsParams.Filter == "month")
+            {
+                var monthAgo = DateTime.UtcNow.AddMonths(-1);
+                visits = visits.Where(x => x.LastVisited >= monthAgo);
+            }
+
+            /*var visitDtos = visits
+                .OrderByDescending(x => x.LastVisited)
+                .Select(x => new VisitDto
+                {
+                    Username = visitsParams.Predicate == "visited" ? x.TargetUser!.UserName : x.SourceUser!.UserName,
+                    KnownAs = visitsParams.Predicate == "visited" ? x.TargetUser!.KnownAs : x.SourceUser!.KnownAs,
+                    PhotoUrl = visitsParams.Predicate == "visited"
+                        ? x.TargetUser!.Photos.FirstOrDefault(p => p.IsMain)!.Url
+                        : x.SourceUser!.Photos.FirstOrDefault(p => p.IsMain)!.Url,
+                    VisitedOn = x.LastVisited
+                });*/
+                var visitDtos = visits
+    .Include(x => x.SourceUser).ThenInclude(p => p.Photos)
+    .Include(x => x.TargetUser).ThenInclude(p => p.Photos)
+    .Select(x => new VisitDto
+    {
+        Id = visitsParams.Predicate == "visited" ? x.TargetUser!.Id : x.SourceUser!.Id,
+        Username = visitsParams.Predicate == "visited" ? x.TargetUser!.UserName : x.SourceUser!.UserName,
+        KnownAs = visitsParams.Predicate == "visited" ? x.TargetUser!.KnownAs : x.SourceUser!.KnownAs,
+        PhotoUrl = visitsParams.Predicate == "visited"
+            ? x.TargetUser.Photos.FirstOrDefault(p => p.IsMain).Url
+            : x.SourceUser.Photos.FirstOrDefault(p => p.IsMain).Url,
+        City = visitsParams.Predicate == "visited" ? x.TargetUser.City : x.SourceUser.City,
+        Age = visitsParams.Predicate == "visited"
+            ? x.TargetUser.GetAge()
+            : x.SourceUser.GetAge(),
+        Created = visitsParams.Predicate == "visited" ? x.TargetUser.Created : x.SourceUser.Created,
+        LastActive = visitsParams.Predicate == "visited" ? x.TargetUser.LastActive : x.SourceUser.LastActive,
+        VisitedOn = x.LastVisited
+    }).AsQueryable();
+
+
+            return await PagedList<VisitDto>.CreateAsync(visitDtos, visitsParams.PageNumber, visitsParams.PageSize);
         }
     }
 }

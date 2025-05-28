@@ -5,6 +5,7 @@ import { map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LikesService } from './likes.service';
 import { PresenceService } from './presence.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable({
   providedIn: 'root'
@@ -59,4 +60,9 @@ export class AccountService {
     this.currentUser.set(null);
     this.presenceService.stopHubConnection();
   }
+
+  public isVip(): boolean {
+  const user = this.currentUser();
+  return user?.roles?.includes('VIP') ?? false;
+}
 }

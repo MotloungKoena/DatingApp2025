@@ -4,13 +4,13 @@ import { AccountService } from '../_services/account.service';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { TitleCasePipe } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { HasRoleDirective } from '../_directives/has-role.directive';
-
+import { TabsModule } from 'ngx-bootstrap/tabs';
 @Component({
   selector: 'app-nav',
   standalone: true, 
-  imports: [FormsModule, BsDropdownModule, RouterLink, RouterLinkActive, TitleCasePipe, HasRoleDirective],
+  imports: [FormsModule, BsDropdownModule, RouterLink, RouterLinkActive, TitleCasePipe, HasRoleDirective, CommonModule, TabsModule],
   templateUrl: './nav.component.html',
   styleUrl: './nav.component.css'
 })

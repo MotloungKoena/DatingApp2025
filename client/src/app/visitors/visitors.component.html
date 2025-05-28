@@ -1,0 +1,49 @@
+<div class="container mt-3">
+  <!-- Predicate & Filter Controls -->
+  <div class="d-flex justify-content-between mb-3">
+    <div class="btn-group">
+      <button 
+        class="btn btn-primary" 
+        [class.active]="predicate === 'visitedBy'"
+        (click)="changePredicate('visitedBy')">
+        Members who visited me
+      </button>
+      <button 
+        class="btn btn-primary" 
+        [class.active]="predicate === 'visited'"
+        (click)="changePredicate('visited')">
+        Members I visited
+      </button>
+    </div>
+
+    <div class="btn-group">
+      <button 
+        class="btn btn-info" 
+        [class.active]="filter === 'all'" 
+        (click)="changeFilter('all')">
+        All
+      </button>
+      <button 
+        class="btn btn-info" 
+        [class.active]="filter === 'month'" 
+        (click)="changeFilter('month')">
+        Past Month
+      </button>
+    </div>
+  </div>
+
+  <!-- No Visits Message -->
+  <div *ngIf="visits.length === 0" class="text-center mt-4">
+    <p>No visits found.</p>
+  </div>
+
+  <!-- Visit Cards -->
+  <div class="row">
+    <div class="col-md-3" *ngFor="let visit of visits">
+      <app-member-card [member]="visit"></app-member-card>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+ 
+</div>

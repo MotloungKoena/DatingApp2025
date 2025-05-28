@@ -14,6 +14,8 @@ import { preventUnsavedChangesGuard } from './_guards/prevent-unsaved-changes.gu
 import { memberDetailedResolver } from './_resolvers/member-detailed.resolver';
 import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 import { adminGuard } from './_guards/admin.guard';
+import { VisitorsComponent } from './visitors/visitors.component';
+
 
 
 export const routes: Routes = [
@@ -24,17 +26,26 @@ export const routes: Routes = [
         canActivate: [authGuard],
         children: [
             { path: 'members', component: MemberListComponent, canActivate: [authGuard] },
-            { path: 'members/:username', component: MemberDetailComponent, resolve:{member: memberDetailedResolver} },
-            { path: 'member/edit', component: MemberEditComponent, 
-                canDeactivate: [preventUnsavedChangesGuard]},
+            { path: 'members/:username', component: MemberDetailComponent, resolve: { member: memberDetailedResolver } },
+            {
+                path: 'member/edit', component: MemberEditComponent,
+                canDeactivate: [preventUnsavedChangesGuard]
+            },
             { path: 'lists', component: ListsComponent },
             { path: 'messages', component: MessagesComponent },
-            {path: 'admin', component: AdminPanelComponent, canActivate: [adminGuard]}
+            { path: 'admin', component: AdminPanelComponent, canActivate: [adminGuard] },
+            //{ path: 'VIP', component: VisitorsComponent },
+            {
+                path: 'visits',
+                component: VisitorsComponent,
+                canActivate: [authGuard],
+                data: { roles: ['VIP'] }
+            }
         ]
     },
-    {path: 'errors', component: TestErrorsComponent},
-    {path: 'not-found', component: NotFoundComponent},
-    {path: 'server-error', component: ServerErrorComponent},
+    { path: 'errors', component: TestErrorsComponent },
+    { path: 'not-found', component: NotFoundComponent },
+    { path: 'server-error', component: ServerErrorComponent },
     { path: 'contact-us', component: ContactUsComponent },
     { path: '**', component: HomeComponent, pathMatch: 'full' },
 ];

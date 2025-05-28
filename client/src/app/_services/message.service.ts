@@ -7,6 +7,7 @@ import { setPaginatedResponse, setPaginationHeaders } from './paginationHelper';
 import { HubConnection, HubConnectionBuilder, HubConnectionState } from '@microsoft/signalr';
 import { User } from '../_models/user';
 import { Group } from '../_models/group';
+import { map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -19,17 +20,17 @@ export class MessageService {
   paginatedResult = signal<PaginatedResult<Message[]> | null>(null);
   messageThread = signal<Message[]>([]);
 
-  createHubConnection(user: User, otherUsername: string){
+  createHubConnection(user: User, otherUsername: string) {
     this.hubConnection = new HubConnectionBuilder()
-    .withUrl(this.huburl + 'message?user=' + otherUsername, {
-      accessTokenFactory: () => user.token
-    })
-    .withAutomaticReconnect()
-    .build();
+      .withUrl(this.huburl + 'message?user=' + otherUsername, {
+        accessTokenFactory: () => user.token
+      })
+      .withAutomaticReconnect()
+      .build();
 
     this.hubConnection.start().catch(error => console.log(error))
-  
-    this.hubConnection.on('ReceiveMessageThread', messages =>{
+
+    this.hubConnection.on('ReceiveMessageThread', messages => {
       this.messageThread.set(messages)
     })
 
@@ -52,29 +53,50 @@ export class MessageService {
 
   }
 
-  stopHubConnection(){
-    if(this.hubConnection?.state === HubConnectionState.Connected){
+  stopHubConnection() {
+    if (this.hubConnection?.state === HubConnectionState.Connected) {
       this.hubConnection.stop().catch(error => console.log(error))
     }
   }
 
-  getMessages(pageNumber: number, pageSize: number, container: string) {
+  /*getMessages(pageNumber: number, pageSize: number, container: string) {
     let params = setPaginationHeaders(pageNumber, pageSize);
 
     params = params.append('Container', container);
 
-    return this.http.get<Message[]>(this.baseUrl + 'messages', {observe: 'response', params})
+    return this.http.get<Message[]>(this.baseUrl + 'messages', { observe: 'response', params })
       .subscribe({
         next: response => setPaginatedResponse(response, this.paginatedResult) 
+        next: response => {
+          const result = this.paginatedResult() ?? new PaginatedResult<Message[]>();
+          setPaginatedResponse(response, result);
+          this.paginatedResult.set(result);
+        }
       })
-  }
+  }*/
+getMessages(pageNumber: number, pageSize: number, container: string) {
+  let params = setPaginationHeaders(pageNumber, pageSize);
+  params = params.append('Container', container);
+
+  return this.http.get<Message[]>(this.baseUrl + 'messages', {
+    observe: 'response',
+    params
+  }).pipe(
+    map(response => {
+      const result = this.paginatedResult() ?? new PaginatedResult<Message[]>();
+      setPaginatedResponse(response, result);
+      this.paginatedResult.set(result);
+      return result; // ✅ return so the component can subscribe
+    })
+  );
+}
 
   getMessageThread(username: string) {
     return this.http.get<Message[]>(this.baseUrl + 'messages/thread/' + username);
   }
 
   async sendMessage(username: string, content: string) {
-    return this.hubConnection?.invoke('SendMessage', {recipientUsername: username, content})
+    return this.hubConnection?.invoke('SendMessage', { recipientUsername: username, content })
   }
 
   deleteMessage(id: number) {
