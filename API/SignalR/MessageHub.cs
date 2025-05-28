@@ -1,14 +1,11 @@
 using API.Extensions;
 using API.Interfaces;
 using Microsoft.AspNetCore.SignalR;
-
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using API.DTOs;
 using API.Entities;
- 
- 
 using AutoMapper;
 using API.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -42,7 +39,7 @@ namespace API.SignalR
 var messages = await unitOfWork.MessageRepository
     .GetMessageThread(currentUsername, otherUser!);
 
-// ✅ Mark unread messages as read
+
 var unreadMessages = messages
     .Where(m => m.DateRead == null && m.RecipientUsername == currentUsername)
     .ToList();
@@ -54,7 +51,7 @@ if (unreadMessages.Any())
         message.DateRead = DateTime.UtcNow;
     }
 
-    await unitOfWork.Complete(); // ← This saves the updates to DB
+    await unitOfWork.Complete(); // This saves the updates to DB
 }
 
 await Clients.Caller.SendAsync("ReceiveMessageThread", messages);

@@ -86,7 +86,7 @@ getMessages(pageNumber: number, pageSize: number, container: string) {
       const result = this.paginatedResult() ?? new PaginatedResult<Message[]>();
       setPaginatedResponse(response, result);
       this.paginatedResult.set(result);
-      return result; // ✅ return so the component can subscribe
+      return result; //return so the component can subscribe
     })
   );
 }
